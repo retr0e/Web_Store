@@ -1,13 +1,37 @@
 import cartImg from "./../Koncepcyjne_zdjecia/cart.png";
 import menuImg from "./../Koncepcyjne_zdjecia/burger_menu.webp";
 import mainLogo from "./../Koncepcyjne_zdjecia/main_logo.png";
-
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+// import axios from "axios"; // Import biblioteki Axios
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    // Funkcja do pobierania danych o zalogowanym użytkowniku z API
+    async function fetchUserData() {
+      try {
+        const response = await fetch(`http://localhost:3000/isAuth`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (response.ok) {
+          const userData = await response.json(); // Przetworzenie odpowiedzi do formatu JSON
+          setIsAdmin(userData);
+        } else {
+          console.error("Server responded with an error:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+
+    fetchUserData(); // Wywołanie funkcji pobierającej dane o użytkowniku po zamontowaniu komponentu
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -15,9 +39,7 @@ export default function Header() {
         setIsMenuOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -51,23 +73,19 @@ export default function Header() {
           <div className='absolute right-0 mt-12 w-48 bg-white border rounded-lg shadow-lg z-50'>
             <div className='block px-4 py-2'>
               <a
-                href='#'
+                href='/login'
                 className='text-gray-800 hover:bg-gray-200 block px-4 py-2 text-sm'
               >
-                Item 1
+                Logowanie
               </a>
-              <a
-                href='#'
-                className='text-gray-800 hover:bg-gray-200 block px-4 py-2 text-sm'
-              >
-                Item 2
-              </a>
-              <a
-                href='#'
-                className='text-gray-800 hover:bg-gray-200 block px-4 py-2 text-sm'
-              >
-                Item 3
-              </a>
+              {isAdmin && (
+                <a
+                  href='/admin'
+                  className='text-gray-800 hover:bg-gray-200 block px-4 py-2 text-sm'
+                >
+                  Admin Panel
+                </a>
+              )}
             </div>
           </div>
         )}
